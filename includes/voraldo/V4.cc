@@ -3,6 +3,8 @@
 using std::cout;
 using std::endl;
 
+#define VORALDO_DEBUG false
+
 /*
 
 Conditional Operator (inline if statment)
@@ -29,6 +31,24 @@ a = x ? x : y;
 
 Voraldo::Voraldo()
 {
+
+	data = NULL;  //declare with an empty block
+//call Voraldo::init_block(int x, int y, int z) to populate it
+}
+
+Voraldo::~Voraldo()
+{
+	cout << "deleting block" << endl;
+	delete[] data;
+}
+
+void Voraldo::init_block(int x, int y, int z, bool noise_fill)
+{
+	if(data != NULL)
+	{
+		delete[] data;
+	}
+
 	RGB black = {0,0,0};
 	name_to_RGB_map["black"] = black;
 
@@ -65,7 +85,7 @@ Voraldo::Voraldo()
 	RGB maroon = {128,0,0};
 	name_to_RGB_map["maroon"] = maroon;
 
-	RGB olive = {128,128,0};	
+	RGB olive = {128,128,0};
 	name_to_RGB_map["olive"] = olive;
 
 	RGB green = {0,128,0};
@@ -147,6 +167,8 @@ Voraldo::Voraldo()
 	//	4 - electrical - gold
 	//	5 - red light - bright red
 	//	6 - space gas
+	if(VORALDO_DEBUG)
+		cout << "bing" << endl;
 
 	Vox empty;
 	empty.mask = false;
@@ -320,7 +342,7 @@ Voraldo::Voraldo()
 	space_gas_1.size = 1;
 	space_gas_1.state = 6;
 
-	name_to_Vox_map["space_gas_1"] = space_gas_1;	
+	name_to_Vox_map["space_gas_1"] = space_gas_1;
 
 	Vox space_gas_2;
 	space_gas_2.mask = false;
@@ -329,7 +351,7 @@ Voraldo::Voraldo()
 	space_gas_2.size = 1;
 	space_gas_2.state = 6;
 
-	name_to_Vox_map["space_gas_2"] = space_gas_2;	
+	name_to_Vox_map["space_gas_2"] = space_gas_2;
 
 	Vox space_gas_3;
 	space_gas_3.mask = false;
@@ -338,7 +360,7 @@ Voraldo::Voraldo()
 	space_gas_3.size = 2;
 	space_gas_3.state = 6;
 
-	name_to_Vox_map["space_gas_3"] = space_gas_3;	
+	name_to_Vox_map["space_gas_3"] = space_gas_3;
 
 	Vox space_gas_4;
 	space_gas_4.mask = false;
@@ -347,7 +369,7 @@ Voraldo::Voraldo()
 	space_gas_4.size = 2;
 	space_gas_4.state = 6;
 
-	name_to_Vox_map["space_gas_4"] = space_gas_4;	
+	name_to_Vox_map["space_gas_4"] = space_gas_4;
 
 	Vox space_gas_5;
 	space_gas_5.mask = false;
@@ -356,26 +378,7 @@ Voraldo::Voraldo()
 	space_gas_5.size = 2;
 	space_gas_5.state = 6;
 
-	name_to_Vox_map["space_gas_5"] = space_gas_5;	
-
-
-
-	data = NULL;  //declare with an empty block
-//call Voraldo::init_block(int x, int y, int z) to populate it
-}
-
-Voraldo::~Voraldo()
-{
-	cout << "deleting block" << endl;
-	delete[] data;
-}
-
-void Voraldo::init_block(int x, int y, int z, bool noise_fill)
-{
-	if(data != NULL)
-	{
-		delete[] data;
-	}
+	name_to_Vox_map["space_gas_5"] = space_gas_5;
 
 	x_res = x;
 	y_res = y;
@@ -502,7 +505,7 @@ void Voraldo::draw_triangle(vec v0, vec v1, vec v2, Vox set)
 void Voraldo::draw_sphere(vec center_point, double radius, Vox set)
 {
 	for(int i = 0; i < get_x_res(); i++)
-	{	
+	{
 		for(int j = 0; j < get_y_res(); j++)
 		{
 			for(int k = 0; k < get_z_res(); k++)
@@ -524,7 +527,7 @@ void Voraldo::draw_sphere(vec center_point, double radius, Vox set)
 void Voraldo::draw_ellipsoid(vec center_point, vec radii, Vox set)
 {
 	for(int i = 0; i < get_x_res(); i++)
-	{	
+	{
 		for(int j = 0; j < get_y_res(); j++)
 		{
 			for(int k = 0; k < get_z_res(); k++)
@@ -541,7 +544,7 @@ void Voraldo::draw_ellipsoid(vec center_point, vec radii, Vox set)
 
 				if(result <= 1){	//point inside ellipsoid - do we want to be able to invert this?
 					//(outside, or on the surface, with >= and ==, respectively)
-					set_data_by_3D_index(i,j,k,set); 
+					set_data_by_3D_index(i,j,k,set);
 				}
 			}
 		}
@@ -564,7 +567,7 @@ void Voraldo::draw_cylinder(vec bvec, vec tvec, double radius, Vox set)
 
 	double point_to_line_distance = 0.0;
 
-	for(int i = 0; i < get_x_res(); i++){	
+	for(int i = 0; i < get_x_res(); i++){
 		for(int j = 0; j < get_y_res(); j++){
 			for(int k = 0; k < get_z_res(); k++){
 				//planetests
@@ -574,10 +577,10 @@ void Voraldo::draw_cylinder(vec bvec, vec tvec, double radius, Vox set)
 				//using the basic equation for a plane, we can do an interesting test
 
 				//These variables will be greater than zero if the test point is on the side of the plane
-				//that the normal vector is pointing towards, and less than zero if the test point is on 
+				//that the normal vector is pointing towards, and less than zero if the test point is on
 				//the side of the plane that the normal vector is not pointing towards. That is to say, in
 				//my case - bplanetest tells me whether the point is above the bottom plane, and tplanetest
-				//tells me whether the point is above the top plane. If it is above the bottom, and below 
+				//tells me whether the point is above the top plane. If it is above the bottom, and below
 				//the top - we are within the ends of the cylinder, and can proceed. Thus, the condition
 				//for the following if statement:
 
@@ -616,7 +619,7 @@ void Voraldo::draw_tube(vec bvec, vec tvec, double inner_radius, double outer_ra
 
 	double point_to_line_distance = 0.0;
 
-	for(int i = 0; i < get_x_res(); i++){	
+	for(int i = 0; i < get_x_res(); i++){
 		for(int j = 0; j < get_y_res(); j++){
 			for(int k = 0; k < get_z_res(); k++){
 				//planetests
@@ -626,10 +629,10 @@ void Voraldo::draw_tube(vec bvec, vec tvec, double inner_radius, double outer_ra
 				//using the basic equation for a plane, we can do an interesting test
 
 				//These variables will be greater than zero if the test point is on the side of the plane
-				//that the normal vector is pointing towards, and less than zero if the test point is on 
+				//that the normal vector is pointing towards, and less than zero if the test point is on
 				//the side of the plane that the normal vector is not pointing towards. That is to say, in
 				//my case - bplanetest tells me whether the point is above the bottom plane, and tplanetest
-				//tells me whether the point is above the top plane. If it is above the bottom, and below 
+				//tells me whether the point is above the top plane. If it is above the bottom, and below
 				//the top - we are within the ends of the cylinder, and can proceed. Thus, the condition
 				//for the following if statement:
 
@@ -658,7 +661,7 @@ void Voraldo::draw_tube(vec bvec, vec tvec, double inner_radius, double outer_ra
 void Voraldo::draw_blockoid(vec mindex, vec maxdex, Vox set)
 {
 	for(int i = 0; i < get_x_res(); i++)
-	{	
+	{
 		for(int j = 0; j < get_y_res(); j++)
 		{
 			for(int k = 0; k < get_z_res(); k++)
@@ -685,11 +688,11 @@ void Voraldo::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, v
 	bool plusx1 = false;
 	bool plusx2 = false;
 
-//    888   Y88b  /  
-//  __888__  Y88b/   
-//    888     Y88b   
-//    888     /Y88b  
-//           /  Y88b 
+//    888   Y88b  /
+//  __888__  Y88b/
+//    888     Y88b
+//    888     /Y88b
+//           /  Y88b
 
 	//CDGH
 
@@ -722,12 +725,12 @@ void Voraldo::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, v
 
 	bool minusx1 = false;
 	bool minusx2 = false;
-         
-//       Y88b  /     
-//  ____  Y88b/      
-//         Y88b      
-//         /Y88b     
-//        /  Y88b    
+
+//       Y88b  /
+//  ____  Y88b/
+//         Y88b
+//         /Y88b
+//        /  Y88b
 
 	//ABEF
 
@@ -761,12 +764,12 @@ void Voraldo::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, v
 	bool plusy1 = false;
 	bool plusy2 = false;
 
-//    888   Y88b  /  
-//  __888__  Y888/   
-//    888     Y8/    
-//    888      Y     
-//            /      
-//          _/       
+//    888   Y88b  /
+//  __888__  Y888/
+//    888     Y8/
+//    888      Y
+//            /
+//          _/
 
 	//ACEG
 
@@ -799,13 +802,13 @@ void Voraldo::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, v
 
 	bool minusy1 = false;
 	bool minusy2 = false;
-        
-//       Y88b  /     
-//  ____  Y888/      
-//         Y8/       
-//          Y        
-//         /         
-//       _/          
+
+//       Y88b  /
+//  ____  Y888/
+//         Y8/
+//          Y
+//         /
+//       _/
 
 	//BDFH
 
@@ -839,12 +842,12 @@ void Voraldo::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, v
 	bool plusz1 = false;
 	bool plusz2 = false;
 
-  
-//    888    ~~~d88P 
-//  __888__    d88P  
-//    888     d88P   
-//    888    d88P    
-//          d88P___  
+
+//    888    ~~~d88P
+//  __888__    d88P
+//    888     d88P
+//    888    d88P
+//          d88P___
 
 	//ABCD
 
@@ -878,11 +881,11 @@ void Voraldo::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, v
 	bool minusz1 = false;
 	bool minusz2 = false;
 
-//        ~~~d88P    
-//  ____    d88P     
-//         d88P      
-//        d88P       
-//       d88P___ 
+//        ~~~d88P
+//  ____    d88P
+//         d88P
+//        d88P
+//       d88P___
 
 	//EFGH
 
@@ -914,12 +917,12 @@ void Voraldo::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, v
 
 //  ╔╦╗┌─┐┌─┐┌┬┐  ╦  ┌─┐┌─┐┌─┐
 //   ║ ├┤ └─┐ │   ║  │ ││ │├─┘
-//   ╩ └─┘└─┘ ┴   ╩═╝└─┘└─┘┴  
+//   ╩ └─┘└─┘ ┴   ╩═╝└─┘└─┘┴
 
 	vec current;
 
 	for(int i = 0; i < get_x_res(); i++)
-	{	
+	{
 		for(int j = 0; j < get_y_res(); j++)
 		{
 			for(int k = 0; k < get_z_res(); k++)
@@ -937,7 +940,7 @@ void Voraldo::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, v
 				bool xtest = plusxtest&&minusxtest;
 				bool ytest = plusytest&&minusytest;
 				bool ztest = plusztest&&minusztest;
-				
+
 
 				if(xtest && ytest && ztest)
 				{
@@ -979,23 +982,29 @@ void Voraldo::set_data_by_3D_index(int x, int y, int z, Vox set)
 	{
 		if(!masked)
 		{
-			std::cout << std::endl << "Invalid index for set_data_by_index()" << std::endl;
+			if(VORALDO_DEBUG)
+			{
+				std::cout << std::endl << "Invalid index for set_data_by_index()" << std::endl;
 
-			std::cout << "you used " << std::to_string(x) << " for x which should be between 0 and ";
-			std::cout << std::to_string(x_res) << std::endl;
+				std::cout << "you used " << std::to_string(x) << " for x which should be between 0 and ";
+				std::cout << std::to_string(x_res) << std::endl;
 
-			std::cout << "you used " << std::to_string(y) << " for y which should be between 0 and ";
-			std::cout << std::to_string(y_res) << std::endl;
+				std::cout << "you used " << std::to_string(y) << " for y which should be between 0 and ";
+				std::cout << std::to_string(y_res) << std::endl;
 
-			std::cout << "you used " << std::to_string(z) << " for z which should be between 0 and ";
-			std::cout << std::to_string(z_res) << std::endl;
+				std::cout << "you used " << std::to_string(z) << " for z which should be between 0 and ";
+				std::cout << std::to_string(z_res) << std::endl;
+			}
 		}
 		else
 		{
-			std::cout << "Cell " 
-				<< std::to_string(x) << " " 
-				<< std::to_string(y) << " " 
-				<< std::to_string(z) << " is masked";
+			if(VORALDO_DEBUG)
+			{
+				std::cout << "Cell "
+					<< std::to_string(x) << " "
+					<< std::to_string(y) << " "
+					<< std::to_string(z) << " is masked";
+			}
 		}
 	}
 
@@ -1015,19 +1024,20 @@ Vox  Voraldo::get_data_by_3D_index(int x, int y, int z)
 	}
 	else
 	{
-		std::cout << std::endl << "Invalid index for get_data_by_3d_index()" << std::endl;
+		if(VORALDO_DEBUG)
+			std::cout << std::endl << "Invalid index for get_data_by_3d_index()" << std::endl;
 
 		Vox temp = {0,false};
 
-		return(temp); //if it is outside, return an empty state 
+		return(temp); //if it is outside, return an empty state
 	}
 }
 
 int Voraldo::get_array_index_for_3D_index(int x, int y, int z)
 {
-	return z*(y_res*x_res) + y*(x_res) + x; //this mapping was figured out on paper, but can be 
+	return z*(y_res*x_res) + y*(x_res) + x; //this mapping was figured out on paper, but can be
 }	//described pretty succinctly - the z dimension is like pages, each of dimension x * y, then
-	//the y dimension is like rows, each of dimension x, and the x dimension is the location 
+	//the y dimension is like rows, each of dimension x, and the x dimension is the location
 	//within the row that has been specified by the z and y coordinates.
 
 void Voraldo::clear_all()
@@ -1067,7 +1077,7 @@ void Voraldo::mask_all_nonzero()
 
 //display
 
-void Voraldo::display()
+void Voraldo::display(std::string filename)
 {
 	double y_upper = -1.618;
 
@@ -1187,15 +1197,15 @@ void Voraldo::display()
 				alpha = temp.alpha;
 
 				for(int w = 0; w <= 8; w++)
-				{	
+				{
 					unsigned char color_char[3] = {color.red,color.green,color.blue};
 
 					curr_x = int(floor(centers[w][0]+x*center_x_vecs[w][0]+y*center_y_vecs[w][0]+z*center_z_vecs[w][0]));
 					curr_y = int(floor(centers[w][1]+x*center_x_vecs[w][1]+y*center_y_vecs[w][1]+z*center_z_vecs[w][1]));
 
 					switch(size)
-					{	
-						case 1://point 
+					{
+						case 1://point
 							img.draw_point(curr_x,curr_y,color_char,alpha);
 							break;
 						case 2://circle size 1
@@ -1228,7 +1238,7 @@ void Voraldo::display()
 		}
 	}
 
-	img.save_bmp("output.bmp");
+	img.save_bmp(filename.c_str());
 }
 
 bool Voraldo::planetest(vec plane_point, vec plane_normal, vec test_point)
@@ -1257,4 +1267,262 @@ bool Voraldo::planetest(vec plane_point, vec plane_normal, vec test_point)
 
 	return (result < 0)?true:false;
 
+}
+
+Car::Car()
+{
+
+}
+
+void Car::init(Voraldo *block)
+{
+	//default values
+	center = vec(128,128,128);
+
+	car_x_vec = vec(1,0,0);
+	car_y_vec = vec(0,1,0);
+	car_z_vec = vec(0,0,1);
+
+	RRhub = vec(-50,0,30);
+	RRinner = vec(-50,0,25);
+	RRouter = vec(-50,0,35);
+
+	LRhub = vec(-50,0,-30);
+	LRinner = vec(-50,0,-25);
+	LRouter = vec(-50,0,-35);
+
+	RFhub = vec(50,0,30);
+	RFinner = vec(50,0,25);
+	RFouter = vec(50,0,35);
+
+	LFhub = vec(50,0,-30);
+	LFinner = vec(50,0,-25);
+	LFouter = vec(50,0,-35);
+
+	Rdiff = vec(-50,0,0);
+	Rdiff_Roffset = vec(-50,0,10);
+	Rdiff_Loffset = vec(-50,0,-10);
+	Rdiff_Foffset = vec(-44,0,0);
+
+	Fdiff = vec(50,0,0);
+	Fdiff_Roffset = vec(50,0,10);
+	Fdiff_Loffset = vec(50,0,-10);
+	Fdiff_Boffset = vec(44,0,0);
+
+	V_object = block;
+
+	if(VORALDO_DEBUG)
+		cout << "finished all initialization" << endl;
+}
+
+void Car::draw(bool platform, double x_rot, double y_rot, double z_rot)
+{
+
+	if(platform)
+	{
+		draw_platform();
+	}
+
+	vec d_center = vec(128,128,128);
+
+
+	mat rotation_x_axis;
+//refernces [column][row]
+	rotation_x_axis[0][0] = 1;
+	rotation_x_axis[0][1] = 0;
+	rotation_x_axis[0][2] = 0;
+	rotation_x_axis[1][0] = 0;
+	rotation_x_axis[1][1] = std::cos(x_rot);
+	rotation_x_axis[1][2] = std::sin(x_rot);
+	rotation_x_axis[2][0] = 0;
+	rotation_x_axis[2][1] = -1.0*std::sin(x_rot);
+	rotation_x_axis[2][2] = std::cos(x_rot);
+
+	mat rotation_y_axis;
+	rotation_y_axis[0][0] = std::cos(y_rot);
+	rotation_y_axis[0][1] = 0;
+	rotation_y_axis[0][2] = -1.0*std::sin(y_rot);
+	rotation_y_axis[1][0] = 0;
+	rotation_y_axis[1][1] = 1;
+	rotation_y_axis[1][2] = 0;
+	rotation_y_axis[2][0] = std::sin(y_rot);
+	rotation_y_axis[2][1] = 0;
+	rotation_y_axis[2][2] = std::cos(y_rot);
+
+	mat rotation_z_axis;
+	rotation_z_axis[0][0] = std::cos(z_rot);
+	rotation_z_axis[0][1] = std::sin(z_rot);
+	rotation_z_axis[0][2] = 0;
+	rotation_z_axis[1][0] = -1.0*std::sin(z_rot);
+	rotation_z_axis[1][1] = std::cos(z_rot);
+	rotation_z_axis[1][2] = 0;
+	rotation_z_axis[2][0] = 0;
+	rotation_z_axis[2][1] = 0;
+	rotation_z_axis[2][2] = 1;
+
+	vec d_car_x_vec = mul(rotation_x_axis,mul(rotation_y_axis,mul(rotation_z_axis,car_x_vec)));
+	vec d_car_y_vec = mul(rotation_x_axis,mul(rotation_y_axis,mul(rotation_z_axis,car_y_vec)));
+	vec d_car_z_vec = mul(rotation_x_axis,mul(rotation_y_axis,mul(rotation_z_axis,car_z_vec)));
+
+
+	/*these vectors define the xyz of the car
+
+I need to calculate a transformed offset for all of vector values
+ - each vector (RRhub, RRinner, etc) is used to get (d_RRhub, d_RRinner, etc)
+ - d_blah = x_vec*blah[0] + y_vec*blah[1] + z_vec*blah[2];
+
+ x_vec is the model's x vector, y is the y, z the z, so rotation
+ can take place.
+
+	*/
+
+
+	d_RRhub = d_car_x_vec*RRhub[0] + d_car_y_vec*RRhub[1] + d_car_z_vec*RRhub[2];
+	d_RRinner = d_car_x_vec*RRinner[0] + d_car_y_vec*RRinner[1] + d_car_z_vec*RRinner[2];
+	d_RRouter = d_car_x_vec*RRouter[0] + d_car_y_vec*RRouter[1] + d_car_z_vec*RRouter[2];
+
+	d_LRhub = d_car_x_vec*LRhub[0] + d_car_y_vec*LRhub[1] + d_car_z_vec*LRhub[2];
+	d_LRinner = d_car_x_vec*LRinner[0] + d_car_y_vec*LRinner[1] + d_car_z_vec*LRinner[2];
+	d_LRouter = d_car_x_vec*LRouter[0] + d_car_y_vec*LRouter[1] + d_car_z_vec*LRouter[2];
+
+	d_RFhub = d_car_x_vec*RFhub[0] + d_car_y_vec*RFhub[1] + d_car_z_vec*RFhub[2];
+	d_RFinner = d_car_x_vec*RFinner[0] + d_car_y_vec*RFinner[1] + d_car_z_vec*RFinner[2];
+	d_RFouter = d_car_x_vec*RFouter[0] + d_car_y_vec*RFouter[1] + d_car_z_vec*RFouter[2];
+
+	d_LFhub = d_car_x_vec*LFhub[0] + d_car_y_vec*LFhub[1] + d_car_z_vec*LFhub[2];
+	d_LFinner = d_car_x_vec*LFinner[0] + d_car_y_vec*LFinner[1] + d_car_z_vec*LFinner[2];
+	d_LFouter = d_car_x_vec*LFouter[0] + d_car_y_vec*LFouter[1] + d_car_z_vec*LFouter[2];
+
+	d_Rdiff = d_car_x_vec*Rdiff[0] + d_car_y_vec*Rdiff[1] + d_car_z_vec*Rdiff[2];
+	d_Rdiff_Roffset = d_car_x_vec*Rdiff_Roffset[0] + d_car_y_vec*Rdiff_Roffset[1] + d_car_z_vec*Rdiff_Roffset[2];
+	d_Rdiff_Loffset = d_car_x_vec*Rdiff_Loffset[0] + d_car_y_vec*Rdiff_Loffset[1] + d_car_z_vec*Rdiff_Loffset[2];
+	d_Rdiff_Foffset = d_car_x_vec*Rdiff_Foffset[0] + d_car_y_vec*Rdiff_Foffset[1] + d_car_z_vec*Rdiff_Foffset[2];
+
+	d_Fdiff = d_car_x_vec*Fdiff[0] + d_car_y_vec*Fdiff[1] + d_car_z_vec*Fdiff[2];
+	d_Fdiff_Roffset = d_car_x_vec*Fdiff_Roffset[0] + d_car_y_vec*Fdiff_Roffset[1] + d_car_z_vec*Fdiff_Roffset[2];
+	d_Fdiff_Loffset = d_car_x_vec*Fdiff_Loffset[0] + d_car_y_vec*Fdiff_Loffset[1] + d_car_z_vec*Fdiff_Loffset[2];
+	d_Fdiff_Boffset = d_car_x_vec*Fdiff_Boffset[0] + d_car_y_vec*Fdiff_Boffset[1] + d_car_z_vec*Fdiff_Boffset[2];
+
+	draw_driveline_and_axles();
+	draw_hubs();
+	draw_rear_diff();
+	draw_front_diff();
+	draw_wheels_and_tires();
+
+	if(VORALDO_DEBUG)
+		cout << "finished all drawing" << endl;
+}
+
+void Car::draw_platform()
+{
+
+	if(VORALDO_DEBUG)
+		cout << "drawing platform" << endl;
+	if(VORALDO_DEBUG)
+		cout << "bing" << endl;
+	V_object->draw_blockoid(vec(0,0,0),vec(257,118,257),V_object->name_to_Vox_map.at("armor_0"));
+	if(VORALDO_DEBUG)
+		cout << "bing" << endl;
+	V_object->draw_ellipsoid(vec(128,118,128),vec(75,25,50),V_object->name_to_Vox_map.at("empty"));
+	if(VORALDO_DEBUG)
+		cout << "bing" << endl;
+	V_object->mask_all_nonzero();
+	if(VORALDO_DEBUG)
+		cout << "bing" << endl;
+	V_object->draw_blockoid(vec(0,112,0),vec(257,118,257),V_object->name_to_Vox_map.at("clear_blue_glass"));
+	V_object->draw_blockoid(vec(70,114,0),vec(86,116,257),V_object->name_to_Vox_map.at("space_gas_5"));
+	V_object->draw_blockoid(vec(170,114,0),vec(186,116,257),V_object->name_to_Vox_map.at("space_gas_5"));
+
+	V_object->unmask_all();
+
+	if(VORALDO_DEBUG)
+		cout << "finished drawing platform" << endl;
+}
+
+void Car::draw_driveline_and_axles()
+{
+	if(VORALDO_DEBUG)
+		cout << "drawing driveline and axles" << endl;
+
+	V_object->draw_cylinder(center+d_Rdiff,center+d_Fdiff,1,V_object->name_to_Vox_map.at("blue_light"));
+
+	V_object->draw_cylinder(center+d_LRhub,center+d_RRhub,1,V_object->name_to_Vox_map.at("blue_light"));
+	V_object->draw_cylinder(center+d_LFhub,center+d_RFhub,1,V_object->name_to_Vox_map.at("blue_light"));
+
+	V_object->mask_all_nonzero();
+
+	if(VORALDO_DEBUG)
+		cout << "finished drawing driveline and axles" << endl;
+}
+
+void Car::draw_hubs()
+{
+	if(VORALDO_DEBUG)
+		cout << "drawing hubs" << endl;
+
+	V_object->draw_cylinder(center+d_LFhub,center+d_LFinner,2.75,V_object->name_to_Vox_map.at("red_light"));
+	V_object->draw_cylinder(center+d_RFhub,center+d_RFinner,2.75,V_object->name_to_Vox_map.at("red_light"));
+	V_object->draw_cylinder(center+d_LRhub,center+d_LRinner,2.75,V_object->name_to_Vox_map.at("red_light"));
+	V_object->draw_cylinder(center+d_RRhub,center+d_RRinner,2.75,V_object->name_to_Vox_map.at("red_light"));
+
+	V_object->mask_all_nonzero();
+
+	if(VORALDO_DEBUG)
+		cout << "finished drawing hubs" << endl;
+}
+
+void Car::draw_rear_diff()
+{
+	if(VORALDO_DEBUG)
+		cout << "drawing rear diff" << endl;
+
+	V_object->draw_sphere(center+d_Rdiff,3.8, V_object->name_to_Vox_map.at("diff"));
+	V_object->draw_cylinder(center+d_Rdiff,center+d_Rdiff_Roffset,2.3,V_object->name_to_Vox_map.at("diff"));
+	V_object->draw_cylinder(center+d_Rdiff,center+d_Rdiff_Loffset,2.3,V_object->name_to_Vox_map.at("diff"));
+	V_object->draw_cylinder(center+d_Rdiff,center+d_Rdiff_Foffset,2.3,V_object->name_to_Vox_map.at("diff"));
+
+	V_object->draw_sphere(center+d_Rdiff_Foffset,1.5, V_object->name_to_Vox_map.at("electrical"));
+
+	if(VORALDO_DEBUG)
+		cout << "finished drawing rear diff" << endl;
+}
+
+void Car::draw_front_diff()
+{
+
+	if(VORALDO_DEBUG)
+		cout << "drawing front diff" << endl;
+
+	V_object->draw_sphere(center+d_Fdiff,3.8, V_object->name_to_Vox_map.at("diff"));
+	V_object->draw_cylinder(center+d_Fdiff,center+d_Fdiff_Roffset,2.3,V_object->name_to_Vox_map.at("diff"));
+	V_object->draw_cylinder(center+d_Fdiff,center+d_Fdiff_Loffset,2.3,V_object->name_to_Vox_map.at("diff"));
+	V_object->draw_cylinder(center+d_Fdiff,center+d_Fdiff_Boffset,2.3,V_object->name_to_Vox_map.at("diff"));
+
+	if(VORALDO_DEBUG)
+		cout << "finished drawing front diff" << endl;
+}
+
+void Car::draw_wheels_and_tires()
+{
+
+	if(VORALDO_DEBUG)
+		cout << "drawing wheels and tires" << endl;
+
+	V_object->draw_cylinder(center+d_LFinner,center+d_LFouter,8,V_object->name_to_Vox_map.at("space_gas_5"));
+	V_object->draw_cylinder(center+d_RFinner,center+d_RFouter,8,V_object->name_to_Vox_map.at("space_gas_5"));
+	V_object->draw_cylinder(center+d_LRinner,center+d_LRouter,8,V_object->name_to_Vox_map.at("space_gas_5"));
+	V_object->draw_cylinder(center+d_RRinner,center+d_RRouter,8,V_object->name_to_Vox_map.at("space_gas_5"));
+
+	V_object->draw_tube(center+d_LFinner,center+d_LFouter,7.5,10,V_object->name_to_Vox_map.at("solid_black"));
+	V_object->draw_tube(center+d_RFinner,center+d_RFouter,7.5,10,V_object->name_to_Vox_map.at("solid_black"));
+	V_object->draw_tube(center+d_LRinner,center+d_LRouter,7.5,10,V_object->name_to_Vox_map.at("solid_black"));
+	V_object->draw_tube(center+d_RRinner,center+d_RRouter,7.5,10,V_object->name_to_Vox_map.at("solid_black"));
+
+	V_object->draw_tube(center+d_LFinner,center+d_LFouter,9.75,10.5,V_object->name_to_Vox_map.at("space_gas_solid"));
+	V_object->draw_tube(center+d_RFinner,center+d_RFouter,9.75,10.5,V_object->name_to_Vox_map.at("space_gas_solid"));
+	V_object->draw_tube(center+d_LRinner,center+d_LRouter,9.75,10.5,V_object->name_to_Vox_map.at("space_gas_solid"));
+	V_object->draw_tube(center+d_RRinner,center+d_RRouter,9.75,10.5,V_object->name_to_Vox_map.at("space_gas_solid"));
+
+	if(VORALDO_DEBUG)
+		cout << "drawing wheels and tires" << endl;
 }

@@ -1,16 +1,16 @@
-#include "../CImg.h"		//single-header library for image display and saving	
+#include "../CImg.h"		//single-header library for image display and saving
 //License below
 
 
-#include "../json.hpp"  	//single-header library for output file formatting		
+#include "../json.hpp"  	//single-header library for output file formatting
 //MIT License
 
 
-#include "../linalg.h"      //single-header library for linear algebra (vectors)	
+#include "../linalg.h"      //single-header library for linear algebra (vectors)
 //Public Domain License
 
-//Cimg license - from Cimg.eu - CImg is a free, open-source library distributed 
-//under the CeCILL-C (close to the GNU LGPL) or CeCILL (compatible with the GNU GPL) 
+//Cimg license - from Cimg.eu - CImg is a free, open-source library distributed
+//under the CeCILL-C (close to the GNU LGPL) or CeCILL (compatible with the GNU GPL)
 //licenses. It can be used in commercial applications.
 
 #include <cstdlib>
@@ -22,7 +22,7 @@
 #include <vector>
 #include <map>
 
-//#include <bitset> 
+//#include <bitset>
 //not in use right now
 
 using vec = linalg::aliases::double3;
@@ -135,7 +135,7 @@ public:
 
 //display
 
-	void display();
+	void display(std::string filename);
 
 
 //holding named voxel values
@@ -163,5 +163,85 @@ private:
 	Vox *data;
 
 
-	
+
+};
+
+class Car{
+public:
+	Car();
+	void init(Voraldo *block);
+	void draw(bool platform, double x_rot, double y_rot, double z_rot);
+
+private:
+	vec center;
+
+	vec car_x_vec;
+	vec car_y_vec;
+	vec car_z_vec;
+
+	vec RRhub;
+	vec RRinner;
+	vec RRouter;
+
+	vec LRhub;
+	vec LRinner;
+	vec LRouter;
+
+	vec RFhub;
+	vec RFinner;
+	vec RFouter;
+
+	vec LFhub;
+	vec LFinner;
+	vec LFouter;
+
+	vec Rdiff;
+	vec Rdiff_Roffset;
+	vec Rdiff_Loffset;
+	vec Rdiff_Foffset;
+
+	vec Fdiff;
+	vec Fdiff_Roffset;
+	vec Fdiff_Loffset;
+	vec Fdiff_Boffset;
+
+//display versions (d_)
+	vec d_car_x_vec;
+	vec d_car_y_vec;
+	vec d_car_z_vec;
+
+	vec d_RRhub;
+	vec d_RRinner;
+	vec d_RRouter;
+
+	vec d_LRhub;
+	vec d_LRinner;
+	vec d_LRouter;
+
+	vec d_RFhub;
+	vec d_RFinner;
+	vec d_RFouter;
+
+	vec d_LFhub;
+	vec d_LFinner;
+	vec d_LFouter;
+
+	vec d_Rdiff;
+	vec d_Rdiff_Roffset;
+	vec d_Rdiff_Loffset;
+	vec d_Rdiff_Foffset;
+
+	vec d_Fdiff;
+	vec d_Fdiff_Roffset;
+	vec d_Fdiff_Loffset;
+	vec d_Fdiff_Boffset;
+
+	Voraldo *V_object;
+
+	void draw_platform();
+	void draw_driveline_and_axles();
+	void draw_hubs();
+	void draw_rear_diff();
+	void draw_front_diff();
+	void draw_wheels_and_tires();
 };
