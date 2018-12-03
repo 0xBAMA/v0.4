@@ -5,29 +5,6 @@ using std::endl;
 
 #define VORALDO_DEBUG false
 
-/*
-
-Conditional Operator (inline if statment)
------------------------------------------
-
-x ? y : z
-
-works like
-
-if(x) y else z
-
-
-
-Just a note, this:
-------------------
-
-a = x ? : y;
-
-is the same as:
-
-a = x ? x : y;
-
-*/
 
 Voraldo::Voraldo()
 {
@@ -379,6 +356,15 @@ void Voraldo::init_block(int x, int y, int z, bool noise_fill)
 	space_gas_5.state = 6;
 
 	name_to_Vox_map["space_gas_5"] = space_gas_5;
+
+	Vox engine_block;
+	engine_block.mask = false;
+	engine_block.color = name_to_RGB_map.at("dark_grey");
+	engine_block.alpha = 1.0;
+	engine_block.size = 2;
+	engine_block.state = 6;
+
+	name_to_Vox_map["engine_block"] = engine_block;
 
 	x_res = x;
 	y_res = y;
@@ -1011,6 +997,8 @@ void Voraldo::set_data_by_3D_index(int x, int y, int z, Vox set)
 	return;
 }
 
+
+
 Vox  Voraldo::get_data_by_3D_index(int x, int y, int z)
 {
 	//validate the input
@@ -1027,7 +1015,35 @@ Vox  Voraldo::get_data_by_3D_index(int x, int y, int z)
 		if(VORALDO_DEBUG)
 			std::cout << std::endl << "Invalid index for get_data_by_3d_index()" << std::endl;
 
-		Vox temp = {0,false};
+		Vox temp = name_to_Vox_map.at("empty");
+
+		return(temp); //if it is outside, return an empty state
+	}
+}
+
+Vox  Voraldo::get_data_by_vector_index(vec index)
+{
+
+	int x = std::floor(index[0]);
+	int y = std::floor(index[1]);
+	int z = std::floor(index[2]);
+
+	//validate the input
+	bool x_valid = (x < x_res) && (x >= 0);
+	bool y_valid = (y < y_res) && (y >= 0);
+	bool z_valid = (z < z_res) && (z >= 0);
+
+
+	if(x_valid && y_valid && z_valid)
+	{
+		return(data[get_array_index_for_3D_index(x,y,z)]); //grab the data from the long 1d array
+	}
+	else
+	{
+		if(VORALDO_DEBUG)
+			std::cout << std::endl << "Invalid index for get_data_by_3d_index()" << std::endl;
+
+		Vox temp = name_to_Vox_map.at("empty");
 
 		return(temp); //if it is outside, return an empty state
 	}
@@ -1042,9 +1058,10 @@ int Voraldo::get_array_index_for_3D_index(int x, int y, int z)
 
 void Voraldo::clear_all()
 {
+	Vox temp = name_to_Vox_map.at("empty");
 	for(int i = 0; i < num_cells; i++)
 	{
-		data[i] = name_to_Vox_map.at("empty");
+		data[i] = temp;
 	}
 }
 
@@ -1077,7 +1094,177 @@ void Voraldo::mask_all_nonzero()
 
 //display
 
-void Voraldo::display(std::string filename)
+void Voraldo::display(std::string filename, double x_rot, double y_rot, double z_rot)
+{
+	using namespace cimg_library;
+
+	int image_square_dimension = 801;
+
+	CImg<unsigned char> img(image_square_dimension,image_square_dimension,1,3,0);
+
+	const unsigned char	gold[3] = {255,215,0};
+	const unsigned char dark_gold[3] = {127,107,0};
+	const unsigned char white[3] = {255,255,255};
+	const unsigned char black[3] = {0,0,0};
+
+	//frame top
+	img.draw_line(0,1,800,1,gold);
+	img.draw_line(0,2,800,2,dark_gold);
+
+	//frame bottom
+	img.draw_line(0,798,800,798,dark_gold);
+	img.draw_line(0,799,800,799,gold);
+
+	//frame left from low x low y to low x high y
+	img.draw_line(1,0,1,800,gold);
+	img.draw_line(2,0,2,800,dark_gold);
+
+	//frame right from high x low y to high x high y
+	img.draw_line(798,0,798,800,dark_gold);
+	img.draw_line(799,0,799,800,gold);
+
+
+	int block_xdim = get_x_res();
+	int block_ydim = get_y_res();
+	int block_zdim = get_z_res();
+
+	int block_xdim_squared = block_xdim*block_xdim;
+	int block_ydim_squared = block_ydim*block_ydim;
+	int block_zdim_squared = block_zdim*block_zdim;
+
+	vec d_center = vec(block_xdim/2.0,block_ydim/2.0,block_zdim/2.0);
+
+	mat rotation_x_axis;
+//refernces [column][row]
+		rotation_x_axis[0][0] = 1;
+		rotation_x_axis[0][1] = 0;
+		rotation_x_axis[0][2] = 0;
+		rotation_x_axis[1][0] = 0;
+		rotation_x_axis[1][1] = std::cos(x_rot);
+		rotation_x_axis[1][2] = std::sin(x_rot);
+		rotation_x_axis[2][0] = 0;
+		rotation_x_axis[2][1] = -1.0*std::sin(x_rot);
+		rotation_x_axis[2][2] = std::cos(x_rot);
+
+	mat rotation_y_axis;
+		rotation_y_axis[0][0] = std::cos(y_rot);
+		rotation_y_axis[0][1] = 0;
+		rotation_y_axis[0][2] = -1.0*std::sin(y_rot);
+		rotation_y_axis[1][0] = 0;
+		rotation_y_axis[1][1] = 1;
+		rotation_y_axis[1][2] = 0;
+		rotation_y_axis[2][0] = std::sin(y_rot);
+		rotation_y_axis[2][1] = 0;
+		rotation_y_axis[2][2] = std::cos(y_rot);
+
+	mat rotation_z_axis;
+		rotation_z_axis[0][0] = std::cos(z_rot);
+		rotation_z_axis[0][1] = std::sin(z_rot);
+		rotation_z_axis[0][2] = 0;
+		rotation_z_axis[1][0] = -1.0*std::sin(z_rot);
+		rotation_z_axis[1][1] = std::cos(z_rot);
+		rotation_z_axis[1][2] = 0;
+		rotation_z_axis[2][0] = 0;
+		rotation_z_axis[2][1] = 0;
+		rotation_z_axis[2][2] = 1;
+
+	vec d_xvec = mul(rotation_x_axis,mul(rotation_y_axis,mul(rotation_z_axis,vec(1,0,0))));
+	vec d_yvec = mul(rotation_x_axis,mul(rotation_y_axis,mul(rotation_z_axis,vec(0,1,0))));
+	vec d_zvec = mul(rotation_x_axis,mul(rotation_y_axis,mul(rotation_z_axis,vec(0,0,1))));
+
+	//tip radius is the radius of the sphere that touches the tips of the block's corners
+	double tip_radius = std::sqrt(block_xdim_squared+block_ydim_squared+block_zdim_squared)/2.0;
+	double max_dist = 2*2.2*tip_radius;
+	double min_dist = 0.2*tip_radius;
+	//factor of two is for the incremental step of length 0.5
+	//factor of 2.2 is for the tip radius plus the camera sphere radius, 1+1.2
+
+	vec cam_position = d_center - 1.2*tip_radius*d_yvec;
+
+	vec cam_up = 0.6*d_zvec; //may need to change the scaling
+	vec cam_right = 0.6*d_xvec;
+
+	int image_center_dim = (image_square_dimension-1)/2; //(800)/2 = 400
+
+	int image_center_x = image_center_dim;
+	int image_center_y = image_center_dim;
+
+	int image_current_x, image_current_y;
+
+	vec vector_starting_point;
+	vec vector_increment = 0.5*normalize(-1.0*(cam_position-d_center));
+
+	vec vector_test_point;
+
+	vec block_min = vec(0,0,0);
+	vec block_max = vec(get_x_res(),get_y_res(),get_z_res());
+
+	Vox temp_vox;
+	unsigned char	point_color[3];
+
+	bool xtest,ytest,ztest;
+	bool line_box_intersection;
+	bool color_set;
+
+	double tintersect; //for line/box intersection
+
+	for(double x = -395; x <= 395; x++)
+		for(double y = -395; y <= 395; y++)
+		{//init (reset)
+			line_box_intersection = false;
+			color_set=false;
+
+
+
+
+			image_current_x = image_center_x + x;
+			image_current_y = image_center_y + y;
+
+			vector_starting_point = cam_position + x*cam_up + y*cam_right;
+
+			//figure out if the parametric line established by parameter z and
+			//	L = vector_starting_point + z*vector_increment
+			//intersects with the box established by (0,0,0) (x,y,z)
+			//i.e. block_min and block_max
+
+			//The goal here is to achieve some level of speedup when compared to
+			//doing an exhaustive check through all points on all vectors from
+			//the pixels in the image.
+
+
+			//if(rayIntersectAABB(vector_starting_point,vector_increment,block_min,block_max,tintersect))
+			//{
+			//	img.draw_point(image_current_x,image_current_y,dark_gold);
+			//	for(double z = min_dist; z <= max_dist; z+=0.5) //from the old code
+				for(double z = min_dist; z <= max_dist; z+=0.5)
+				{
+					vector_test_point = vector_starting_point + z*vector_increment;
+					temp_vox = get_data_by_vector_index(vector_test_point);
+					if(temp_vox.state!=0)
+					{
+						point_color[0] = temp_vox.color.red;
+						point_color[1] = temp_vox.color.green;
+						point_color[2] = temp_vox.color.blue;
+
+						img.draw_point(image_current_x,image_current_y,point_color);
+						color_set = true;
+
+						break;
+					}
+				}
+				if(!color_set)
+					img.draw_point(image_current_x,image_current_y,dark_gold);
+			// }
+			// else
+			// {
+			// 	img.draw_point(image_current_x,image_current_y,black);
+			// }
+		}
+
+	img.save_bmp(filename.c_str());
+}
+
+void Voraldo::legacy_display(std::string filename)
 {
 	double y_upper = -1.618;
 
@@ -1269,6 +1456,83 @@ bool Voraldo::planetest(vec plane_point, vec plane_normal, vec test_point)
 
 }
 
+bool Voraldo::rayIntersectAABB(vec P,vec d,vec block_min,vec block_max,double &tintersect)
+{//algorithm from book "Geometric tools for computer graphics"
+	//authors Philip J. Schneider and David H. Eberly
+	double tnear = -INFINITY;
+	double tfar = INFINITY;
+
+	double t0, t1;
+	double temp;
+
+	//0 for YZ planes, 1 for XZ planes, 2 for YZ planes
+
+	for(int dim = 0; dim <=3; dim++)
+	{
+		if(abs(d[dim]) < FLT_EPSILON)
+		{//ray parallel to planes
+		//	cout << "ray parallel to planes" << endl;
+			if (P[dim] < block_min[dim] || P[dim] > block_max[dim])
+			{//ray parallel to planes, and is outside the planes
+			//	cout << "but failed because it is outisde the planes " << endl;
+				return false;
+			}
+		}
+		//ray not parallel to planes
+		//this finds the parameters of the intersections
+		t0 = (block_min[dim] - P[dim]) / d[dim];
+		t1 = (block_max[dim] - P[dim]) / d[dim];
+
+		//check order
+		if(t0>t1)
+		{//swap them
+			temp = t1;
+			t1 = t0;
+			t0 = temp;
+		//	cout <<"had to swap em" << endl;
+		}
+
+		//compare with current values
+		if(t0>tnear)
+		{
+			tnear = t0;
+		}
+
+		if(t1<tfar)
+		{
+			tfar = t1;
+		}
+
+		//check if ray misses entirely
+		if(tnear > tfar)
+		{
+		//	cout << "ray missed entirely" << endl;
+			return false;
+		}
+
+		if(tfar < 0)
+		{
+		//	cout << "ray missed entirely" << endl;
+			return false;
+		}
+
+	}
+
+	if(tnear > 0)
+	{
+		tintersect = tnear;
+	}
+	else
+	{
+		tintersect = tfar;
+	}
+
+	//if you drop out of the loop without returning false, you are in the box
+	return true;
+	//also note tnear and tfar are passed in by reference so the variables
+	//in the calling function will have their final values.
+}
+
 Car::Car()
 {
 
@@ -1308,6 +1572,15 @@ void Car::init(Voraldo *block)
 	Fdiff_Roffset = vec(50,0,10);
 	Fdiff_Loffset = vec(50,0,-10);
 	Fdiff_Boffset = vec(44,0,0);
+
+	engine_block_a = vec(18,12,12);
+	engine_block_b = vec(18,-4,10);
+	engine_block_c = vec(45,12,12);
+	engine_block_d = vec(45,-4,10);
+	engine_block_e = vec(18,12,-12);
+	engine_block_f = vec(18,-4,-10);
+	engine_block_g = vec(45,12,-12);
+	engine_block_h = vec(45,-4,-10);
 
 	V_object = block;
 
@@ -1403,11 +1676,21 @@ I need to calculate a transformed offset for all of vector values
 	d_Fdiff_Loffset = d_car_x_vec*Fdiff_Loffset[0] + d_car_y_vec*Fdiff_Loffset[1] + d_car_z_vec*Fdiff_Loffset[2];
 	d_Fdiff_Boffset = d_car_x_vec*Fdiff_Boffset[0] + d_car_y_vec*Fdiff_Boffset[1] + d_car_z_vec*Fdiff_Boffset[2];
 
+	d_engine_block_a = d_car_x_vec*engine_block_a[0] + d_car_y_vec*engine_block_a[1] + d_car_z_vec*engine_block_a[2];
+	d_engine_block_b = d_car_x_vec*engine_block_b[0] + d_car_y_vec*engine_block_b[1] + d_car_z_vec*engine_block_b[2];
+	d_engine_block_c = d_car_x_vec*engine_block_c[0] + d_car_y_vec*engine_block_c[1] + d_car_z_vec*engine_block_c[2];
+	d_engine_block_d = d_car_x_vec*engine_block_d[0] + d_car_y_vec*engine_block_d[1] + d_car_z_vec*engine_block_d[2];
+	d_engine_block_e = d_car_x_vec*engine_block_e[0] + d_car_y_vec*engine_block_e[1] + d_car_z_vec*engine_block_e[2];
+	d_engine_block_f = d_car_x_vec*engine_block_f[0] + d_car_y_vec*engine_block_f[1] + d_car_z_vec*engine_block_f[2];
+	d_engine_block_g = d_car_x_vec*engine_block_g[0] + d_car_y_vec*engine_block_g[1] + d_car_z_vec*engine_block_g[2];
+	d_engine_block_h = d_car_x_vec*engine_block_h[0] + d_car_y_vec*engine_block_h[1] + d_car_z_vec*engine_block_h[2];
+
 	draw_driveline_and_axles();
 	draw_hubs();
 	draw_rear_diff();
 	draw_front_diff();
 	draw_wheels_and_tires();
+	draw_engine_block();
 
 	if(VORALDO_DEBUG)
 		cout << "finished all drawing" << endl;
@@ -1524,5 +1807,22 @@ void Car::draw_wheels_and_tires()
 	V_object->draw_tube(center+d_RRinner,center+d_RRouter,9.75,10.5,V_object->name_to_Vox_map.at("space_gas_solid"));
 
 	if(VORALDO_DEBUG)
-		cout << "drawing wheels and tires" << endl;
+		cout << "finished drawing wheels and tires" << endl;
+}
+
+void Car::draw_engine_block()
+{
+
+	if(VORALDO_DEBUG)
+		cout << "drawing engine block" << endl;
+
+	V_object->unmask_all();
+
+	V_object->draw_quadrilateral_hexahedron(
+		center+d_engine_block_a, center+d_engine_block_b, center+d_engine_block_c, center+d_engine_block_d,
+		center+d_engine_block_e, center+d_engine_block_f, center+d_engine_block_g, center+d_engine_block_h,
+		V_object->name_to_Vox_map.at("engine_block"));
+
+	if(VORALDO_DEBUG)
+		cout << "finished drawing engine block" << endl;
 }

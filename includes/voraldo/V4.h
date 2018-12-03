@@ -119,6 +119,7 @@ public:
 
 	void set_data_by_3D_index(int x, int y, int z, Vox set);
 	Vox  get_data_by_3D_index(int x, int y, int z);
+	Vox  get_data_by_vector_index(vec index);
 
 	int get_array_index_for_3D_index(int x, int y, int z);
 
@@ -135,7 +136,8 @@ public:
 
 //display
 
-	void display(std::string filename);
+	void display(std::string filename,  double x_rot, double y_rot, double z_rot);
+	void legacy_display(std::string filename);
 
 
 //holding named voxel values
@@ -148,7 +150,7 @@ private:
 
 //want to know if a point is above or below a plane? below returns true, for reasons
 	bool planetest(vec plane_point, vec plane_normal, vec test_point);
-
+	bool rayIntersectAABB(vec P,vec d,vec block_min,vec block_max,double &tintersect);
 
 //block dimensions
 	int x_res;
@@ -205,6 +207,17 @@ private:
 	vec Fdiff_Loffset;
 	vec Fdiff_Boffset;
 
+	vec engine_block_a;
+	vec engine_block_b;
+	vec engine_block_c;
+	vec engine_block_d;
+	vec engine_block_e;
+	vec engine_block_f;
+	vec engine_block_g;
+	vec engine_block_h;
+
+
+
 //display versions (d_)
 	vec d_car_x_vec;
 	vec d_car_y_vec;
@@ -236,6 +249,16 @@ private:
 	vec d_Fdiff_Loffset;
 	vec d_Fdiff_Boffset;
 
+	vec d_engine_block_a;
+	vec d_engine_block_b;
+	vec d_engine_block_c;
+	vec d_engine_block_d;
+	vec d_engine_block_e;
+	vec d_engine_block_f;
+	vec d_engine_block_g;
+	vec d_engine_block_h;
+
+
 	Voraldo *V_object;
 
 	void draw_platform();
@@ -244,4 +267,5 @@ private:
 	void draw_rear_diff();
 	void draw_front_diff();
 	void draw_wheels_and_tires();
+	void draw_engine_block();
 };
