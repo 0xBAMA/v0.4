@@ -81,10 +81,10 @@ int main(){
 	Car* car1 = new Car();
 
 	car1->init(main_block);
-	car1->draw(true,0,-3.14/4.0,0);
+	car1->draw(true,0,3.14/4.0,0);
 
-	main_block->legacy_display("output.bmp");
-	main_block->display("new_output.bmp", 3.14, 3.14/3.0, 3.14/3.0, 0.55);
+//	main_block->legacy_display("output.bmp");
+	main_block->display("new_output.bmp", 3.14, 3.14/3.0, 3.14/3.0, 0.6);
 
 
 

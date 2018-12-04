@@ -1599,10 +1599,30 @@ void Car::init(Voraldo *block)
 	engine_block_g = vec(45,12,-12);
 	engine_block_h = vec(45,-4,-10);
 
-	left_sill_front = vec(36,0,-30);
-	left_sill_back = vec(-36,0,-30);
-	right_sill_front = vec(36,0,30);
-	right_sill_back = vec(-36,0,30);
+	left_sill_front = vec(36,0,-34);
+	left_front_fender_0 = vec(38,8,-34);
+	left_front_fender_1 = vec(42,12,-34);
+
+
+
+	left_sill_back = vec(-36,0,-34);
+	left_back_fender_0 = vec(-38,8,-34);
+	left_back_fender_1 = vec(-42,12,-34);
+
+
+
+	right_sill_front = vec(36,0,34);
+	right_front_fender_0 = vec(38,8,34);
+	right_front_fender_1 = vec(42,12,34);
+
+
+
+	right_sill_back = vec(-36,0,34);
+	right_back_fender_0 = vec(-38,8,34);
+	right_back_fender_1 = vec(-42,12,34);
+
+
+
 
 	V_object = block;
 
@@ -1711,6 +1731,17 @@ I need to calculate a transformed offset for all of vector values
 	d_left_sill_back = d_car_x_vec*left_sill_back[0] + d_car_y_vec*left_sill_back[1] + d_car_z_vec*left_sill_back[2];
 	d_right_sill_front = d_car_x_vec*right_sill_front[0] + d_car_y_vec*right_sill_front[1] + d_car_z_vec*right_sill_front[2];
 	d_right_sill_back = d_car_x_vec*right_sill_back[0] + d_car_y_vec*right_sill_back[1] + d_car_z_vec*right_sill_back[2];
+
+	d_left_front_fender_0 = d_car_x_vec*left_front_fender_0[0] + d_car_y_vec*left_front_fender_0[1] + d_car_z_vec*left_front_fender_0[2];
+	d_left_back_fender_0 = d_car_x_vec*left_back_fender_0[0] + d_car_y_vec*left_back_fender_0[1] + d_car_z_vec*left_back_fender_0[2];
+	d_right_front_fender_0 = d_car_x_vec*right_front_fender_0[0] + d_car_y_vec*right_front_fender_0[1] + d_car_z_vec*right_front_fender_0[2];
+	d_right_back_fender_0 = d_car_x_vec*right_back_fender_0[0] + d_car_y_vec*right_back_fender_0[1] + d_car_z_vec*right_back_fender_0[2];
+
+	d_left_front_fender_1 = d_car_x_vec*left_front_fender_1[0] + d_car_y_vec*left_front_fender_1[1] + d_car_z_vec*left_front_fender_1[2];
+	d_left_back_fender_1 = d_car_x_vec*left_back_fender_1[0] + d_car_y_vec*left_back_fender_1[1] + d_car_z_vec*left_back_fender_1[2];
+	d_right_front_fender_1 = d_car_x_vec*right_front_fender_1[0] + d_car_y_vec*right_front_fender_1[1] + d_car_z_vec*right_front_fender_1[2];
+	d_right_back_fender_1 = d_car_x_vec*right_back_fender_1[0] + d_car_y_vec*right_back_fender_1[1] + d_car_z_vec*right_back_fender_1[2];
+
 
 	draw_driveline_and_axles();
 	draw_hubs();
@@ -1860,11 +1891,18 @@ void Car::draw_body_sills()
 	if(VORALDO_DEBUG)
 		cout << "drawing body sills" << endl;
 
+	V_object->draw_line_segment(center+d_left_back_fender_0,center+d_left_back_fender_1,V_object->name_to_Vox_map.at("body_dark"));
+	V_object->draw_line_segment(center+d_left_sill_back,center+d_left_back_fender_0,V_object->name_to_Vox_map.at("body_dark"));
 	V_object->draw_line_segment(center+d_left_sill_front,center+d_left_sill_back,V_object->name_to_Vox_map.at("body_dark"));
-	V_object->draw_line_segment(center+d_right_sill_front,center+d_right_sill_back,V_object->name_to_Vox_map.at("body_dark"));
+	V_object->draw_line_segment(center+d_left_sill_front,center+d_left_front_fender_0,V_object->name_to_Vox_map.at("body_dark"));
+	V_object->draw_line_segment(center+d_left_front_fender_0,center+d_left_front_fender_1,V_object->name_to_Vox_map.at("body_dark"));
 
-	// V_object->draw_line_segment(center+d_left_sill_front,center+d_right_sill_front,V_object->name_to_Vox_map.at("body_dark"));
-	// V_object->draw_line_segment(center+d_left_sill_back,center+d_right_sill_back,V_object->name_to_Vox_map.at("body_dark"));
+	V_object->draw_line_segment(center+d_right_back_fender_0,center+d_right_back_fender_1,V_object->name_to_Vox_map.at("body_dark"));
+	V_object->draw_line_segment(center+d_right_sill_back,center+d_right_back_fender_0,V_object->name_to_Vox_map.at("body_dark"));
+	V_object->draw_line_segment(center+d_right_sill_front,center+d_right_sill_back,V_object->name_to_Vox_map.at("body_dark"));
+	V_object->draw_line_segment(center+d_right_sill_front,center+d_right_front_fender_0,V_object->name_to_Vox_map.at("body_dark"));
+	V_object->draw_line_segment(center+d_right_front_fender_0,center+d_right_front_fender_1,V_object->name_to_Vox_map.at("body_dark"));
+
 
 
 	if(VORALDO_DEBUG)

@@ -221,6 +221,18 @@ private:
 	vec right_sill_front;
 	vec	right_sill_back;
 
+	vec left_front_fender_0;
+	vec left_back_fender_0;
+	vec right_front_fender_0;
+	vec right_back_fender_0;
+
+	vec left_front_fender_1;
+	vec left_back_fender_1;
+	vec right_front_fender_1;
+	vec right_back_fender_1;
+
+
+
 
 
 //display versions (d_)
@@ -268,6 +280,15 @@ private:
 	vec d_right_sill_front;
 	vec	d_right_sill_back;
 
+	vec d_left_front_fender_0;
+	vec d_left_back_fender_0;
+	vec d_right_front_fender_0;
+	vec d_right_back_fender_0;
+
+	vec d_left_front_fender_1;
+	vec d_left_back_fender_1;
+	vec d_right_front_fender_1;
+	vec d_right_back_fender_1;
 
 	Voraldo *V_object;
 
