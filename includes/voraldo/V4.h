@@ -216,6 +216,11 @@ private:
 	vec engine_block_g;
 	vec engine_block_h;
 
+	vec left_sill_front;
+	vec left_sill_back;
+	vec right_sill_front;
+	vec	right_sill_back;
+
 
 
 //display versions (d_)
@@ -258,6 +263,11 @@ private:
 	vec d_engine_block_g;
 	vec d_engine_block_h;
 
+	vec d_left_sill_front;
+	vec d_left_sill_back;
+	vec d_right_sill_front;
+	vec	d_right_sill_back;
+
 
 	Voraldo *V_object;
 
@@ -268,4 +278,5 @@ private:
 	void draw_front_diff();
 	void draw_wheels_and_tires();
 	void draw_engine_block();
+	void draw_body_sills();
 };

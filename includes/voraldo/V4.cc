@@ -47,6 +47,12 @@ void Voraldo::init_block(int x, int y, int z, bool noise_fill)
 	RGB bright_red = {255,0,0};
 	name_to_RGB_map["bright_red"] = bright_red;
 
+	RGB red = {196,0,0};
+	name_to_RGB_map["red"] = red;
+
+	RGB medium_red = {128,0,0};
+	name_to_RGB_map["medium_red"] = medium_red;
+
 	RGB bright_green = {0,255,0};
 	name_to_RGB_map["bright_green"] = bright_green;
 
@@ -368,6 +374,33 @@ void Voraldo::init_block(int x, int y, int z, bool noise_fill)
 	engine_block.state = 6;
 
 	name_to_Vox_map["engine_block"] = engine_block;
+
+	Vox body_light;
+	body_light.mask = false;
+	body_light.color = name_to_RGB_map.at("bright_red");
+	body_light.alpha = 1.0;
+	body_light.size = 2;
+	body_light.state = 6;
+
+	name_to_Vox_map["body_light"] = body_light;
+
+	Vox body;
+	body.mask = false;
+	body.color = name_to_RGB_map.at("red");
+	body.alpha = 1.0;
+	body.size = 2;
+	body.state = 6;
+
+	name_to_Vox_map["body"] = body;
+
+	Vox body_dark;
+	body_dark.mask = false;
+	body_dark.color = name_to_RGB_map.at("medium_red");
+	body_dark.alpha = 1.0;
+	body_dark.size = 2;
+	body_dark.state = 6;
+
+	name_to_Vox_map["body_dark"] = body_dark;
 
 	x_res = x;
 	y_res = y;
@@ -1109,6 +1142,8 @@ void Voraldo::display(std::string filename, double x_rot, double y_rot, double z
 	const unsigned char dark_gold[3] = {127,107,0};
 	const unsigned char white[3] = {255,255,255};
 	const unsigned char black[3] = {0,0,0};
+	const unsigned char pink[3] = {255,0,255};
+
 
 	//frame top
 	img.draw_line(0,1,800,1,gold);
@@ -1260,7 +1295,7 @@ void Voraldo::display(std::string filename, double x_rot, double y_rot, double z
 					}
 				}
 				if(!color_set)
-					img.draw_point(image_current_x,image_current_y,dark_gold);
+					img.draw_point(image_current_x,image_current_y,black);
 			}
 			else
 			{
@@ -1564,6 +1599,11 @@ void Car::init(Voraldo *block)
 	engine_block_g = vec(45,12,-12);
 	engine_block_h = vec(45,-4,-10);
 
+	left_sill_front = vec(36,0,-30);
+	left_sill_back = vec(-36,0,-30);
+	right_sill_front = vec(36,0,30);
+	right_sill_back = vec(-36,0,30);
+
 	V_object = block;
 
 	if(VORALDO_DEBUG)
@@ -1667,12 +1707,18 @@ I need to calculate a transformed offset for all of vector values
 	d_engine_block_g = d_car_x_vec*engine_block_g[0] + d_car_y_vec*engine_block_g[1] + d_car_z_vec*engine_block_g[2];
 	d_engine_block_h = d_car_x_vec*engine_block_h[0] + d_car_y_vec*engine_block_h[1] + d_car_z_vec*engine_block_h[2];
 
+	d_left_sill_front = d_car_x_vec*left_sill_front[0] + d_car_y_vec*left_sill_front[1] + d_car_z_vec*left_sill_front[2];
+	d_left_sill_back = d_car_x_vec*left_sill_back[0] + d_car_y_vec*left_sill_back[1] + d_car_z_vec*left_sill_back[2];
+	d_right_sill_front = d_car_x_vec*right_sill_front[0] + d_car_y_vec*right_sill_front[1] + d_car_z_vec*right_sill_front[2];
+	d_right_sill_back = d_car_x_vec*right_sill_back[0] + d_car_y_vec*right_sill_back[1] + d_car_z_vec*right_sill_back[2];
+
 	draw_driveline_and_axles();
 	draw_hubs();
 	draw_rear_diff();
 	draw_front_diff();
 	draw_wheels_and_tires();
 	draw_engine_block();
+	draw_body_sills();
 
 	if(VORALDO_DEBUG)
 		cout << "finished all drawing" << endl;
@@ -1807,4 +1853,20 @@ void Car::draw_engine_block()
 
 	if(VORALDO_DEBUG)
 		cout << "finished drawing engine block" << endl;
+}
+
+void Car::draw_body_sills()
+{
+	if(VORALDO_DEBUG)
+		cout << "drawing body sills" << endl;
+
+	V_object->draw_line_segment(center+d_left_sill_front,center+d_left_sill_back,V_object->name_to_Vox_map.at("body_dark"));
+	V_object->draw_line_segment(center+d_right_sill_front,center+d_right_sill_back,V_object->name_to_Vox_map.at("body_dark"));
+
+	// V_object->draw_line_segment(center+d_left_sill_front,center+d_right_sill_front,V_object->name_to_Vox_map.at("body_dark"));
+	// V_object->draw_line_segment(center+d_left_sill_back,center+d_right_sill_back,V_object->name_to_Vox_map.at("body_dark"));
+
+
+	if(VORALDO_DEBUG)
+		cout << "finished drawing body sills" << endl;
 }

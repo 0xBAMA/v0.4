@@ -81,43 +81,43 @@ int main(){
 	Car* car1 = new Car();
 
 	car1->init(main_block);
-	car1->draw(true,0,3.14/4.0,0);
+	car1->draw(true,0,-3.14/4.0,0);
 
-	//main_block->legacy_display("output.bmp");
-	main_block->display("new_output.bmp", 3.14, 3.14/3.0, 3.14/3.0, 0.6);
-
-
+	main_block->legacy_display("output.bmp");
+	main_block->display("new_output.bmp", 3.14, 3.14/3.0, 3.14/3.0, 0.55);
 
 
 
-	main_block->init_block(init_x, init_y, init_z, true);
-	int k = 0;
 
+
+	//main_block->init_block(init_x, init_y, init_z, true);
+	// int k = 0;
+	//
 	// auto frame_tick = Clock::now();
 	// auto frame_tock = Clock::now();
 	//
-	// for(double i = 0.6; i > 0.1; i-=0.01)
+	// for(double i = 0.01*k; i < 6.28; i+=0.01)
 	// {
 	// 	frame_tick = Clock::now();
-	// 	car1->draw(true,0,i,0);
+	// 	car1->draw(true,0,-i,0);
 	// 	if(k < 10)
 	// 	{
-	// 		main_block->display("frames/output00"+std::to_string(k)+".bmp", 3.14, 3.14/3.0, 3.14/3.0,i);
+	// 		main_block->display("frames/output00"+std::to_string(k)+".bmp", 3.14, (3.14/3.0)-i, (3.14/3.0)-i,0.6);
 	// 	}
 	// 	else if(k < 100)
 	// 	{
-	// 		main_block->display("frames/output0"+std::to_string(k)+".bmp", 3.14, 3.14/3.0, 3.14/3.0,i);
+	// 		main_block->display("frames/output0"+std::to_string(k)+".bmp", 3.14, (3.14/3.0)-i, (3.14/3.0)-i,0.6);
 	// 	}
 	// 	else
 	// 	{
-	// 		main_block->display("frames/output"+std::to_string(k)+".bmp", 3.14, 3.14/3.0, 3.14/3.0,i);
+	// 		main_block->display("frames/output"+std::to_string(k)+".bmp", 3.14, (3.14/3.0)-i, (3.14/3.0)-i,0.6);
 	// 	}
 	//
 	// 	main_block->init_block(init_x, init_y, init_z, true);
 	//
 	// 	frame_tock = Clock::now();
 	//
-	// 	cout << "frame took " << std::chrono::duration_cast<milliseconds>(frame_tock-frame_tick).count() << " ms"<< endl;
+	// 	cout << "frame " << k << " took " << std::chrono::duration_cast<milliseconds>(frame_tock-frame_tick).count() << " ms"<< endl;
 	// 	k++;
 	// } //this took hours
 
