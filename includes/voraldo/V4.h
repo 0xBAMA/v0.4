@@ -136,7 +136,7 @@ public:
 
 //display
 
-	void display(std::string filename,  double x_rot, double y_rot, double z_rot);
+	void display(std::string filename,  double x_rot, double y_rot, double z_rot, double scale);
 	void legacy_display(std::string filename);
 
 
@@ -150,7 +150,7 @@ private:
 
 //want to know if a point is above or below a plane? below returns true, for reasons
 	bool planetest(vec plane_point, vec plane_normal, vec test_point);
-	bool rayIntersectAABB(vec P,vec d,vec block_min,vec block_max,double &tintersect);
+	bool intersect_bbox(vec bbox_min, vec bbox_max, vec ray_org, vec ray_dir, double t0, double t1, double &tmin, double &tmax);
 
 //block dimensions
 	int x_res;

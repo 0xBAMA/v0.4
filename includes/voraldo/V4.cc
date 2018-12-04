@@ -29,6 +29,9 @@ void Voraldo::init_block(int x, int y, int z, bool noise_fill)
 	RGB black = {0,0,0};
 	name_to_RGB_map["black"] = black;
 
+	RGB dark_dark_grey = {12,12,12};
+	name_to_RGB_map["dark_dark_grey"] = dark_dark_grey;
+
 	RGB dark_grey = {24,24,24};
 	name_to_RGB_map["dark_grey"] = dark_grey;
 
@@ -1094,7 +1097,7 @@ void Voraldo::mask_all_nonzero()
 
 //display
 
-void Voraldo::display(std::string filename, double x_rot, double y_rot, double z_rot)
+void Voraldo::display(std::string filename, double x_rot, double y_rot, double z_rot, double scale)
 {
 	using namespace cimg_library;
 
@@ -1181,8 +1184,8 @@ void Voraldo::display(std::string filename, double x_rot, double y_rot, double z
 
 	vec cam_position = d_center - 1.2*tip_radius*d_yvec;
 
-	vec cam_up = 0.6*d_zvec; //may need to change the scaling
-	vec cam_right = 0.6*d_xvec;
+	vec cam_up = scale*d_zvec; //may need to change the scaling
+	vec cam_right = scale*d_xvec;
 
 	int image_center_dim = (image_square_dimension-1)/2; //(800)/2 = 400
 
@@ -1205,6 +1208,10 @@ void Voraldo::display(std::string filename, double x_rot, double y_rot, double z
 	bool xtest,ytest,ztest;
 	bool line_box_intersection;
 	bool color_set;
+
+	double t0 = -999;
+	double t1 = 999;
+	double tmin, tmax;
 
 	double tintersect; //for line/box intersection
 
@@ -1230,13 +1237,13 @@ void Voraldo::display(std::string filename, double x_rot, double y_rot, double z
 			//The goal here is to achieve some level of speedup when compared to
 			//doing an exhaustive check through all points on all vectors from
 			//the pixels in the image.
+			line_box_intersection = intersect_bbox(block_min,block_max,vector_starting_point,vector_increment,t0,t1,tmin,tmax);
 
-
-			//if(rayIntersectAABB(vector_starting_point,vector_increment,block_min,block_max,tintersect))
-			//{
+			if(line_box_intersection)
+			{
 			//	img.draw_point(image_current_x,image_current_y,dark_gold);
 			//	for(double z = min_dist; z <= max_dist; z+=0.5) //from the old code
-				for(double z = min_dist; z <= max_dist; z+=0.5)
+				for(double z = tmin; z <= tmax; z+=0.5) //go from close intersection point to far intersection point
 				{
 					vector_test_point = vector_starting_point + z*vector_increment;
 					temp_vox = get_data_by_vector_index(vector_test_point);
@@ -1254,11 +1261,11 @@ void Voraldo::display(std::string filename, double x_rot, double y_rot, double z
 				}
 				if(!color_set)
 					img.draw_point(image_current_x,image_current_y,dark_gold);
-			// }
-			// else
-			// {
-			// 	img.draw_point(image_current_x,image_current_y,black);
-			// }
+			}
+			else
+			{
+				img.draw_point(image_current_x,image_current_y,black);
+			}
 		}
 
 	img.save_bmp(filename.c_str());
@@ -1456,81 +1463,56 @@ bool Voraldo::planetest(vec plane_point, vec plane_normal, vec test_point)
 
 }
 
-bool Voraldo::rayIntersectAABB(vec P,vec d,vec block_min,vec block_max,double &tintersect)
-{//algorithm from book "Geometric tools for computer graphics"
-	//authors Philip J. Schneider and David H. Eberly
-	double tnear = -INFINITY;
-	double tfar = INFINITY;
+/*
+ * Ray-box intersection using IEEE numerical properties to ensure that the
+ * test is both robust and efficient, as described in:
+ *
+ *      Amy Williams, Steve Barrus, R. Keith Morley, and Peter Shirley
+ *      "An Efficient and Robust Ray-Box Intersection Algorithm"
+ *      Journal of graphics tools, 10(1):49-54, 2005
+ *
+ */
+//I pulled this code after three attempts at my own implementation didn't work
+bool Voraldo::intersect_bbox(vec bbox_min, vec bbox_max, vec ray_org, vec ray_dir, double t0, double t1, double &tmin, double &tmax)
+{
+	vec bbox[2];
+	int sign[3];
 
-	double t0, t1;
-	double temp;
+	vec inv_direction = vec(1/ray_dir[0],1/ray_dir[1],1/ray_dir[2]);
 
-	//0 for YZ planes, 1 for XZ planes, 2 for YZ planes
+	sign[0] = (inv_direction[0] < 0);
+	sign[1] = (inv_direction[1] < 0);
+	sign[2] = (inv_direction[2] < 0);
 
-	for(int dim = 0; dim <=3; dim++)
-	{
-		if(abs(d[dim]) < FLT_EPSILON)
-		{//ray parallel to planes
-		//	cout << "ray parallel to planes" << endl;
-			if (P[dim] < block_min[dim] || P[dim] > block_max[dim])
-			{//ray parallel to planes, and is outside the planes
-			//	cout << "but failed because it is outisde the planes " << endl;
-				return false;
-			}
-		}
-		//ray not parallel to planes
-		//this finds the parameters of the intersections
-		t0 = (block_min[dim] - P[dim]) / d[dim];
-		t1 = (block_max[dim] - P[dim]) / d[dim];
+	bbox[0] = bbox_min;
+	bbox[1] = bbox_max;
 
-		//check order
-		if(t0>t1)
-		{//swap them
-			temp = t1;
-			t1 = t0;
-			t0 = temp;
-		//	cout <<"had to swap em" << endl;
-		}
 
-		//compare with current values
-		if(t0>tnear)
-		{
-			tnear = t0;
-		}
+	//already declared (passed in by reference so that they can be used)
+  tmin = (bbox[sign[0]][0] - ray_org[0]) * inv_direction[0];
+  tmax = (bbox[1-sign[0]][0] - ray_org[0]) * inv_direction[0];
 
-		if(t1<tfar)
-		{
-			tfar = t1;
-		}
+  double tymin = (bbox[sign[1]][1] - ray_org[1]) * inv_direction[1];
+  double tymax = (bbox[1-sign[1]][1] - ray_org[1]) * inv_direction[1];
 
-		//check if ray misses entirely
-		if(tnear > tfar)
-		{
-		//	cout << "ray missed entirely" << endl;
-			return false;
-		}
+  if ( (tmin > tymax) || (tymin > tmax) )
+    return false;
+  if (tymin > tmin)
+    tmin = tymin;
+  if (tymax < tmax)
+    tmax = tymax;
 
-		if(tfar < 0)
-		{
-		//	cout << "ray missed entirely" << endl;
-			return false;
-		}
+  double tzmin = (bbox[sign[2]][2] - ray_org[2]) * inv_direction[2];
+  double tzmax = (bbox[1-sign[2]][2] - ray_org[2]) * inv_direction[2];
 
-	}
+  if ( (tmin > tzmax) || (tzmin > tmax) )
+    return false;
+  if (tzmin > tmin)
+    tmin = tzmin;
+  if (tzmax < tmax)
+    tmax = tzmax;
+  return ( (tmin < t1) && (tmax > t0) );
 
-	if(tnear > 0)
-	{
-		tintersect = tnear;
-	}
-	else
-	{
-		tintersect = tfar;
-	}
-
-	//if you drop out of the loop without returning false, you are in the box
-	return true;
-	//also note tnear and tfar are passed in by reference so the variables
-	//in the calling function will have their final values.
 }
 
 Car::Car()
