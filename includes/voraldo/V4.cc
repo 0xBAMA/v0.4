@@ -1641,7 +1641,7 @@ void Car::draw(bool platform, double x_rot, double y_rot, double z_rot)
 
 	if(platform)
 	{
-		draw_platform();
+		draw_platform(true);
 	}
 
 	vec d_center = vec(128,128,128);
@@ -1761,7 +1761,7 @@ I need to calculate a transformed offset for all of vector values
 		cout << "finished all drawing" << endl;
 }
 
-void Car::draw_platform()
+void Car::draw_platform(bool frame)
 {
 
 	if(VORALDO_DEBUG)
@@ -1790,8 +1790,45 @@ void Car::draw_platform()
 	V_object->draw_blockoid(vec(170,114,0),vec(186,116,257),V_object->name_to_Vox_map.at("space_gas_5"));
 
 
+	V_object->draw_tube(vec(128,118+74,128),vec(128,118+78,128),5,10,V_object->name_to_Vox_map.at("red_light"));
+	V_object->draw_tube(vec(128,118+78,128),vec(128,118+80,128),2,12,V_object->name_to_Vox_map.at("hull"));
+
 
 	V_object->unmask_all();
+
+	if(frame)
+	{
+
+		int x = V_object->get_x_res()-1;
+		int y = V_object->get_y_res()-1;
+		int z = V_object->get_z_res()-1;
+
+		vec zerozerozero = vec(0,0,0);
+		vec Xreszerozero = vec(x,0,0);
+		vec zeroYreszero = vec(0,y,0);
+		vec XresYreszero = vec(x,y,0);
+		vec zerozeroZres = vec(0,0,z);
+		vec XreszeroZres = vec(x,0,z);
+		vec zeroYresZres = vec(0,y,z);
+		vec XresYresZres = vec(x,y,z);
+
+		V_object->draw_line_segment(zerozerozero,Xreszerozero,V_object->name_to_Vox_map.at("red_light"));
+		V_object->draw_line_segment(zeroYreszero,XresYreszero,V_object->name_to_Vox_map.at("red_light"));
+		V_object->draw_line_segment(zerozeroZres,XreszeroZres,V_object->name_to_Vox_map.at("red_light"));
+		V_object->draw_line_segment(zeroYresZres,XresYresZres,V_object->name_to_Vox_map.at("red_light"));
+
+		V_object->draw_line_segment(zerozerozero,zeroYreszero,V_object->name_to_Vox_map.at("green_light"));
+		V_object->draw_line_segment(Xreszerozero,XresYreszero,V_object->name_to_Vox_map.at("green_light"));
+		V_object->draw_line_segment(zerozeroZres,zeroYresZres,V_object->name_to_Vox_map.at("green_light"));
+		V_object->draw_line_segment(XreszeroZres,XresYresZres,V_object->name_to_Vox_map.at("green_light"));
+
+		V_object->draw_line_segment(zerozerozero,zerozeroZres,V_object->name_to_Vox_map.at("blue_light"));
+		V_object->draw_line_segment(Xreszerozero,XreszeroZres,V_object->name_to_Vox_map.at("blue_light"));
+		V_object->draw_line_segment(zeroYreszero,zeroYresZres,V_object->name_to_Vox_map.at("blue_light"));
+		V_object->draw_line_segment(XresYreszero,XresYresZres,V_object->name_to_Vox_map.at("blue_light"));
+
+
+	}
 
 	if(VORALDO_DEBUG)
 		cout << "finished drawing platform" << endl;

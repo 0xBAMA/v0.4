@@ -1,6 +1,9 @@
 #include "../CImg.h"		//single-header library for image display and saving
 //License below
 
+//IMPORTANT LINKS RE CIMG LIBRARY docs
+//http://cimg.eu/reference/group__cimg__overview.html
+
 
 #include "../json.hpp"  	//single-header library for output file formatting
 //MIT License
@@ -292,7 +295,7 @@ private:
 
 	Voraldo *V_object;
 
-	void draw_platform();
+	void draw_platform(bool frame);
 	void draw_driveline_and_axles();
 	void draw_hubs();
 	void draw_rear_diff();
