@@ -136,7 +136,7 @@ public:
 
 //display
 
-	void display(std::string filename,  double x_rot, double y_rot, double z_rot, double scale);
+	void display(std::string filename,  double x_rot, double y_rot, double z_rot, double scale, bool perspective);
 	void legacy_display(std::string filename);
 
 

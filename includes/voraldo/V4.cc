@@ -1130,13 +1130,14 @@ void Voraldo::mask_all_nonzero()
 
 //display
 
-void Voraldo::display(std::string filename, double x_rot, double y_rot, double z_rot, double scale)
+void Voraldo::display(std::string filename, double x_rot, double y_rot, double z_rot, double scale, bool perspective)
 {
 	using namespace cimg_library;
 
-	int image_square_dimension = 801;
+	int image_x_dimension = 1921;
+	int image_y_dimension = 1081;
 
-	CImg<unsigned char> img(image_square_dimension,image_square_dimension,1,3,0);
+	CImg<unsigned char> img(image_x_dimension,image_y_dimension,1,3,0);
 
 	const unsigned char	gold[3] = {255,215,0};
 	const unsigned char dark_gold[3] = {127,107,0};
@@ -1146,20 +1147,20 @@ void Voraldo::display(std::string filename, double x_rot, double y_rot, double z
 
 
 	//frame top
-	img.draw_line(0,1,800,1,gold);
-	img.draw_line(0,2,800,2,dark_gold);
+	img.draw_line(0,1,image_x_dimension,1,gold);
+	img.draw_line(0,2,image_x_dimension,2,dark_gold);
 
 	//frame bottom
-	img.draw_line(0,798,800,798,dark_gold);
-	img.draw_line(0,799,800,799,gold);
+	img.draw_line(0,image_y_dimension-2,image_x_dimension,image_y_dimension-2,dark_gold);
+	img.draw_line(0,image_y_dimension-1,image_x_dimension,image_y_dimension-1,gold);
 
 	//frame left from low x low y to low x high y
-	img.draw_line(1,0,1,800,gold);
-	img.draw_line(2,0,2,800,dark_gold);
+	img.draw_line(1,0,1,image_y_dimension,gold);
+	img.draw_line(2,0,2,image_y_dimension,dark_gold);
 
 	//frame right from high x low y to high x high y
-	img.draw_line(798,0,798,800,dark_gold);
-	img.draw_line(799,0,799,800,gold);
+	img.draw_line(image_x_dimension-2,0,image_x_dimension-2,image_y_dimension,dark_gold);
+	img.draw_line(image_x_dimension-2,0,image_x_dimension-2,image_y_dimension,gold);
 
 
 	int block_xdim = get_x_res();
@@ -1222,10 +1223,10 @@ void Voraldo::display(std::string filename, double x_rot, double y_rot, double z
 	vec cam_up = scale*d_zvec; //may need to change the scaling
 	vec cam_right = scale*d_xvec;
 
-	int image_center_dim = (image_square_dimension-1)/2; //(800)/2 = 400
 
-	int image_center_x = image_center_dim;
-	int image_center_y = image_center_dim;
+
+	int image_center_x = (image_x_dimension-1)/2;;
+	int image_center_y = (image_y_dimension-1)/2;;
 
 	int image_current_x, image_current_y;
 
@@ -1250,8 +1251,8 @@ void Voraldo::display(std::string filename, double x_rot, double y_rot, double z
 
 	double tintersect; //for line/box intersection
 
-	for(double x = -395; x <= 395; x++)
-		for(double y = -395; y <= 395; y++)
+	for(double x = -(image_x_dimension/2-5); x <= (image_x_dimension/2-5); x++)
+		for(double y = -(image_y_dimension/2-5); y <= (image_y_dimension/2-5); y++)
 		{//init (reset)
 			line_box_intersection = false;
 			color_set=false;
@@ -1261,6 +1262,11 @@ void Voraldo::display(std::string filename, double x_rot, double y_rot, double z
 
 			image_current_x = image_center_x + x;
 			image_current_y = image_center_y + y;
+
+
+			// if(perspective == true) //this gets added inside the loop - note that the linetest will have to consider the perspective corrected ray
+			// 	vector_increment_perspective = vector_increment + x*0.1*cam_right - y*0.1*cam_up;
+
 
 			vector_starting_point = cam_position + x*cam_up + y*cam_right;
 
@@ -1295,7 +1301,7 @@ void Voraldo::display(std::string filename, double x_rot, double y_rot, double z
 					}
 				}
 				if(!color_set)
-					img.draw_point(image_current_x,image_current_y,black);
+					img.draw_point(image_current_x,image_current_y,pink);
 			}
 			else
 			{
@@ -1760,20 +1766,30 @@ void Car::draw_platform()
 
 	if(VORALDO_DEBUG)
 		cout << "drawing platform" << endl;
-	if(VORALDO_DEBUG)
-		cout << "bing" << endl;
-	V_object->draw_blockoid(vec(0,0,0),vec(257,118,257),V_object->name_to_Vox_map.at("armor_0"));
-	if(VORALDO_DEBUG)
-		cout << "bing" << endl;
-	V_object->draw_ellipsoid(vec(128,118,128),vec(75,25,50),V_object->name_to_Vox_map.at("empty"));
-	if(VORALDO_DEBUG)
-		cout << "bing" << endl;
+
+	V_object->draw_ellipsoid(vec(128,118,128),vec(100,75,75),V_object->name_to_Vox_map.at("space_gas_5"));
+	V_object->draw_ellipsoid(vec(128,118,128),vec(78,72,200),V_object->name_to_Vox_map.at("empty"));
+	V_object->draw_ellipsoid(vec(128,118,128),vec(200,72,50),V_object->name_to_Vox_map.at("empty"));
+
 	V_object->mask_all_nonzero();
-	if(VORALDO_DEBUG)
-		cout << "bing" << endl;
+	V_object->invert_mask();
+
+	V_object->draw_ellipsoid(vec(128,118,128),vec(79,73,201),V_object->name_to_Vox_map.at("clear_blue_glass"));
+
+
+
+	V_object->unmask_all();
+
+	V_object->draw_blockoid(vec(0,0,0),vec(257,118,257),V_object->name_to_Vox_map.at("armor_0"));
+	V_object->draw_ellipsoid(vec(128,118,128),vec(75,25,50),V_object->name_to_Vox_map.at("empty"));
+
+	V_object->mask_all_nonzero();
+
 	V_object->draw_blockoid(vec(0,112,0),vec(257,118,257),V_object->name_to_Vox_map.at("clear_blue_glass"));
 	V_object->draw_blockoid(vec(70,114,0),vec(86,116,257),V_object->name_to_Vox_map.at("space_gas_5"));
 	V_object->draw_blockoid(vec(170,114,0),vec(186,116,257),V_object->name_to_Vox_map.at("space_gas_5"));
+
+
 
 	V_object->unmask_all();
 
